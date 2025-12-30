@@ -1,0 +1,15 @@
+{
+	"id": "b5819bea-0947-4967-891a-059ab6fa54f9",
+	"values": [
+		{
+			"key": "gl_base_url",
+			"value": "https://petstore.swagger.io/v2",
+			"type": "default",
+			"enabled": true
+		}
+	],
+	"name": "Globals",
+	"_postman_variable_scope": "globals",
+	"_postman_exported_at": "2025-12-30T10:45:20.616Z",
+	"_postman_exported_using": "Postman/11.77.2"
+}
