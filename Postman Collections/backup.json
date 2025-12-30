@@ -1,0 +1,1255 @@
+{
+	"info": {
+		"_postman_id": "5baec920-ddd4-48f6-aec6-4080998e5675",
+		"name": "Pet Store",
+		"description": "## Swagger Petstore\n\n[<i>Swagger UI</i>](https://petstore.swagger.io/#/)\n\nThis is a sample server Petstore server",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Pet Controller",
+			"item": [
+				{
+					"name": "POST /pet",
+					"item": [
+						{
+							"name": "Add  new pet to the story",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "a44c8e70-dc3d-4362-bec2-4dfbb8fe5510",
+										"exec": [
+											"pm.test(\"Add new pet Request Post-response test: response must be valid and have a body \", function () {",
+											"    pm.response.to.be.ok;",
+											"    pm.response.to.be.withBody;",
+											"    pm.response.to.be.json;",
+											"});",
+											"",
+											"const pet = pm.response.json();",
+											"",
+											"pm.test('Add new pet Request Post-response test: Response contains pet id', function () {",
+											"    pm.expect(pet).to.have.property('id');",
+											"});",
+											"",
+											"pm.test('Add new pet Request Post-response test: Response contains pet name', function () {",
+											"    pm.expect(pet).to.have.property('name');",
+											"});",
+											"",
+											"console.log(\"Add new pet Post-response Test: Compare the pets count before and the pets count after. Checks that the count increased (new pet added)\");",
+											"// Get created pet info from POST response",
+											"const createdPet = pm.response.json();",
+											"const createdPetId = createdPet.id;",
+											"const createdPetStatus = createdPet.status;",
+											"",
+											"// Read variables used in pre-request",
+											"const baseUrl = pm.variables.get(\"gl_base_url\");",
+											"const status = pm.collectionVariables.get(\"col_pet_status1\"); // same as pre-request",
+											"const beforeCountRaw = pm.collectionVariables.get(\"Pets_count_before_\" + status);",
+											"const beforeCount = Number(beforeCountRaw);",
+											"",
+											"// Make sure we actually have a \"before\" value",
+											"pm.test(\"Pre-request test for stored 'before' count for status \" + status, function () {",
+											"    pm.expect(beforeCountRaw, \"Pets_count_before_\" + status + \" should be set\").to.exist;",
+											"    pm.expect(isNaN(beforeCount), \"beforeCount should be a number\").to.be.false;",
+											"});",
+											"",
+											"console.log(\"Now capture state AFTER: call GET /pet/findByStatus for the same status\")",
+											"pm.sendRequest({",
+											"    url: baseUrl + \"/pet/findByStatus?status=\" + encodeURIComponent(status),",
+											"    method: \"GET\"",
+											"}, function (err, res) {",
+											"    // Safety tests around the helper request",
+											"    pm.test(\"Post-test: findByStatus helper request has no error\", function () {",
+											"        pm.expect(err).to.be.null;",
+											"    });",
+											"",
+											"    pm.test(\"Post-test: findByStatus returns 200\", function () {",
+											"        pm.expect(res.code).to.eql(200);",
+											"    });",
+											"",
+											"    const petsAfter = res.json();",
+											"",
+											"    // Save the count as a collection variable",
+											"    pm.collectionVariables.set(\"Pets_count_after_\" + status, petsAfter.length);",
+											"",
+											"    // Add a test that displays this value",
+											"    pm.test(\"Pets count after for status '\" + status + \"': \" + petsAfter.length, function () {",
+											"        pm.expect(petsAfter.length).to.be.a('number');",
+											"    });",
+											"",
+											"    const afterCount = petsAfter.length;",
+											"",
+											"    pm.test(\"Pets count increased after adding new pet (status: \" + status + \")\", function () {",
+											"        pm.expect(afterCount).to.be.greaterThan(beforeCount);",
+											"    });",
+											"",
+											"    console.log(\"Pets count before:\", beforeCount);",
+											"    console.log(\"Pets count after:\", afterCount);",
+											"});",
+											"",
+											"",
+											"// Visualization Script",
+											"const template = `",
+											"<style>",
+											"    .pet-card {",
+											"        font-family: Arial, sans-serif;",
+											"        max-width: 600px;",
+											"        margin: 20px auto;",
+											"        padding: 20px;",
+											"        border: 2px solid #FF6C37;",
+											"        border-radius: 10px;",
+											"        background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);",
+											"        box-shadow: 0 4px 6px rgba(0,0,0,0.1);",
+											"    }",
+											"    .pet-header {",
+											"        text-align: center;",
+											"        color: #FF6C37;",
+											"        border-bottom: 2px solid #FF6C37;",
+											"        padding-bottom: 15px;",
+											"        margin-bottom: 20px;",
+											"    }",
+											"    .pet-header h2 {",
+											"        margin: 0;",
+											"        font-size: 28px;",
+											"    }",
+											"    .pet-info {",
+											"        margin: 15px 0;",
+											"    }",
+											"    .info-row {",
+											"        display: flex;",
+											"        padding: 10px;",
+											"        margin: 8px 0;",
+											"        background-color: white;",
+											"        border-radius: 5px;",
+											"        border-left: 4px solid #FF6C37;",
+											"    }",
+											"    .info-label {",
+											"        font-weight: bold;",
+											"        color: #333;",
+											"        min-width: 120px;",
+											"    }",
+											"    .info-value {",
+											"        color: #555;",
+											"        flex: 1;",
+											"    }",
+											"    .tag-item, .url-item {",
+											"        display: inline-block;",
+											"        background-color: #FF6C37;",
+											"        color: white;",
+											"        padding: 5px 12px;",
+											"        margin: 5px 5px 5px 0;",
+											"        border-radius: 15px;",
+											"        font-size: 14px;",
+											"    }",
+											"    .status-badge {",
+											"        display: inline-block;",
+											"        padding: 5px 15px;",
+											"        border-radius: 20px;",
+											"        font-weight: bold;",
+											"        text-transform: uppercase;",
+											"        background-color: #28a745;",
+											"        color: white;",
+											"    }",
+											"</style>",
+											"",
+											"<div class=\"pet-card\">",
+											"    <div class=\"pet-header\">",
+											"        <h2>🐾 Pet Information</h2>",
+											"    </div>",
+											"    ",
+											"    <div class=\"pet-info\">",
+											"        <div class=\"info-row\">",
+											"            <span class=\"info-label\">Pet ID:</span>",
+											"            <span class=\"info-value\">{{pet.id}}</span>",
+											"        </div>",
+											"        ",
+											"        <div class=\"info-row\">",
+											"            <span class=\"info-label\">Pet Name:</span>",
+											"            <span class=\"info-value\">{{pet.name}}</span>",
+											"        </div>",
+											"        ",
+											"        <div class=\"info-row\">",
+											"            <span class=\"info-label\">Category:</span>",
+											"            <span class=\"info-value\">{{pet.category.name}} (ID: {{pet.category.id}})</span>",
+											"        </div>",
+											"        ",
+											"        <div class=\"info-row\">",
+											"            <span class=\"info-label\">Status:</span>",
+											"            <span class=\"info-value\">",
+											"                <span class=\"status-badge\">{{pet.status}}</span>",
+											"            </span>",
+											"        </div>",
+											"        ",
+											"        <div class=\"info-row\">",
+											"            <span class=\"info-label\">Tags:</span>",
+											"            <span class=\"info-value\">",
+											"                {{#each pet.tags}}",
+											"                    <span class=\"tag-item\">{{this.name}} (ID: {{this.id}})</span>",
+											"                {{/each}}",
+											"            </span>",
+											"        </div>",
+											"        ",
+											"        <div class=\"info-row\">",
+											"            <span class=\"info-label\">Photo URLs:</span>",
+											"            <span class=\"info-value\">",
+											"                {{#each pet.photoUrls}}",
+											"                    <span class=\"url-item\">{{this}}</span>",
+											"                {{/each}}",
+											"            </span>",
+											"        </div>",
+											"    </div>",
+											"</div>",
+											"`;",
+											"",
+											"function createPayload() {",
+											"    return {",
+											"        pet: pm.response.json()",
+											"    };",
+											"}",
+											"",
+											"pm.visualizer.set(template, createPayload());"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "776191f4-e3f4-4365-9c6a-a0ad7e21a474",
+										"exec": [
+											"// Task 1: Send API call in pre-request script",
+											"// We get current pets count for the status stored in collection variable {{col_pet_status1}}",
+											"// We capture pets count before (state before) to compare it with the pets count after in Request Post-response test",
+											"console.log(\"Request Pre-request script: Add new pet to the story: \");",
+											"",
+											"const baseUrl = pm.variables.get(\"gl_base_url\");",
+											"const status = pm.collectionVariables.get(\"col_pet_status1\"); // e.g. \"available\"",
+											"",
+											"pm.sendRequest({",
+											"    url: baseUrl + \"/pet/findByStatus?status=\" + encodeURIComponent(status),",
+											"    method: \"GET\"",
+											"}, function (err, res) {",
+											"    console.log(\"Request Pre-request script: fetched pets before creating new one. Status:\", status);",
+											"",
+											"    if (err) {",
+											"        console.log(\"Pre-request error:\", err);",
+											"        return;",
+											"    }",
+											"",
+											"    console.log(\"Pre-request: status code:\", res.code);",
+											"",
+											"    if (res.code === 200) {",
+											"        const pets = res.json();",
+											"        // store the count using the status in the name",
+											"        pm.collectionVariables.set(\"Pets_count_before_\" + status, pets.length);",
+											"        console.log(`Pets count before for status \"${status}\":`, pets.length);",
+											"    }",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"id": "3d510885-f881-4cd8-9c29-94bc92c769a3",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true,
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": {{env_petId}},\r\n    \"category\": {\r\n        \"id\": 1,\r\n        \"name\": \"Lion\"\r\n    },\r\n    \"name\": \"{{first_name}}\",\r\n    \"photoUrls\": [\r\n        \"string\"\r\n    ],\r\n    \"tags\": [\r\n        {\r\n            \"id\": 100,\r\n            \"name\": \"Wild animals\"\r\n        }\r\n    ],\r\n    \"status\": \"available\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{gl_base_url}}/pet/"
+							},
+							"response": []
+						}
+					],
+					"id": "8354e99a-3288-4dc6-91aa-7b61b67049e0",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "1f0c393a-1b28-4fee-a15d-5f2acd0089e6",
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {},
+								"exec": [
+									"const firstName = pm.collectionVariables.replaceIn(\"{{$randomFirstName}}\");\r",
+									"console.log(firstName);\r",
+									"pm.collectionVariables.set('first_name', firstName)\r",
+									"\r",
+									"// Delete pet if pet with env_petId already exists\r",
+									"\r",
+									"const baseUrl = pm.variables.get(\"gl_base_url\");\r",
+									"const petId = pm.environment.get(\"env_petId\");\r",
+									"\r",
+									"if (!petId) {\r",
+									"    console.log(\"env_petId is not set, skipping delete.\");\r",
+									"} else {\r",
+									"    const petUrl = baseUrl + \"/pet/\" + encodeURIComponent(petId);\r",
+									"\r",
+									"    console.log(`Checking if pet with id ${petId} exists before deleting...`);\r",
+									"\r",
+									"    // Check if pet exists by sending GET /pet/{petId} API Call\r",
+									"    pm.sendRequest({\r",
+									"        url: petUrl,\r",
+									"        method: \"GET\"\r",
+									"    }, function (err, res) {\r",
+									"        if (err) {\r",
+									"            console.log(\"Error on GET /pet/{petId}:\", err);\r",
+									"            return;\r",
+									"        }\r",
+									"\r",
+									"        console.log(\"GET /pet/\" + petId + \" status is:\", res.code);\r",
+									"\r",
+									"        // If pet exists (200) send DELETE /pet/{petId} API Call\r",
+									"        if (res.code === 200) {\r",
+									"            console.log(`Pet with id ${petId} exists. Send DELETE API Call`);\r",
+									"\r",
+									"            pm.sendRequest({\r",
+									"                url: petUrl,\r",
+									"                method: \"DELETE\"\r",
+									"            }, function (delErr, delRes) {\r",
+									"                if (delErr) {\r",
+									"                    console.log(\"Error on DELETE /pet/{petId}:\", delErr);\r",
+									"                    return;\r",
+									"                }\r",
+									"                console.log(\"DELETE /pet/\" + petId + \" status is:\", delRes.code);\r",
+									"            });\r",
+									"\r",
+									"        } else if (res.code === 404) {\r",
+									"            console.log(\"Pet\", petId, \"does not exist. No delete needed.\");\r",
+									"        } else {\r",
+									"            console.log(\"Unexpected status from GET /pet/{petId}:\", res.code);\r",
+									"        }\r",
+									"    });\r",
+									"}\r",
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "c0ecd229-0186-4411-8ad2-12fa3cab5975",
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {},
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "POST /pet/{petId}/uploadImage",
+					"item": [
+						{
+							"name": "Upload an Image",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "3de2964f-91db-498c-b198-fe876d13b6cd",
+										"exec": [
+											"pm.test(\"Upload Image Request Post-response test: response has a body\", function () {\r",
+											"    pm.response.to.be.withBody;\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Upload Image Request Post-response test: response is JSON\", function () {\r",
+											"    pm.response.to.be.json;\r",
+											"});\r",
+											"\r",
+											"const responseData = pm.response.json();\r",
+											"\r",
+											"pm.test(\"Upload Image Request Post-response test: response has code, type, and message fields\", function () {\r",
+											"    pm.expect(responseData).to.have.property(\"code\");\r",
+											"    pm.expect(responseData).to.have.property(\"type\");\r",
+											"    pm.expect(responseData).to.have.property(\"message\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Upload Image Request Post-response test: code field is 200\", function () {\r",
+											"    pm.expect(responseData.code).to.eql(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Upload Image Request Post-response test: message mentions upload\", function () {\r",
+											"    const msg = String(responseData.message).toLowerCase();\r",
+											"    pm.expect(msg).to.include(\"upload\");\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "7dfcc36b-0499-4f2a-82c8-48e83ee61664",
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"id": "36af6eb8-347c-400f-886c-785b8366a8f2",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "file",
+											"type": "file",
+											"uuid": "3e0fa200-044f-45e7-8209-110c1cbf6709",
+											"src": "/C:/ProgramData/Jenkins/.jenkins/workspace/Petstore-newman-freestyle/postman_files/Zebra_1981.jpg"
+										}
+									]
+								},
+								"url": "{{gl_base_url}}/pet/{{env_petId}}/uploadImage"
+							},
+							"response": []
+						}
+					],
+					"id": "88fccfc3-f5db-4a83-b179-d71d5212573a",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "f3dccea7-da87-4bc1-8fb4-5476cdffe46a",
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {},
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "9ae839c7-4043-4cf0-8221-47c238421bd8",
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {},
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "PUT /pet",
+					"item": [
+						{
+							"name": "Update an existing pet",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "2b1288e1-62cb-46a0-bda1-0acaddb314c3",
+										"exec": [
+											"pm.test('Update existed pet Request Post-response test: Response is JSON', function () {",
+											"    pm.response.to.be.json;",
+											"});",
+											"",
+											"const pet = pm.response.json();",
+											"",
+											"pm.test('Update existed pet Request Post-response test: Updated pet has id', function () {",
+											"    pm.expect(pet).to.have.property('id');",
+											"});",
+											"",
+											"pm.test('Update existed pet Request Post-response test: Response contains status property', function () {",
+											"    pm.expect(pet).to.have.property('status');",
+											"});",
+											"",
+											"pm.test('Update existed pet Request Post-response test: Status is pending', function () {",
+											"    pm.expect(pet.status).to.eql('pending');",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"id": "c69d5c83-b41f-4869-82d5-ac074fa97561",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": {{env_petId}},\r\n    \"category\": {\r\n        \"id\": 2,\r\n        \"name\": \"Dog\"\r\n    },\r\n    \"name\": \"{{first_name}}\",\r\n    \"photoUrls\": [\r\n        \"{{$randomAnimalsImage}}\"\r\n    ],\r\n    \"tags\": [\r\n        {\r\n            \"id\": 200,\r\n            \"name\": \"Home animals\"\r\n        }\r\n    ],\r\n    \"status\": \"pending\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{gl_base_url}}/pet"
+							},
+							"response": []
+						}
+					],
+					"id": "0ac38853-3cb7-4bd8-a3a0-984387374efc"
+				},
+				{
+					"name": "GET /pet/{petId}",
+					"item": [
+						{
+							"name": "Find pet by Id",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "001a382e-32a7-4ab8-914f-aed51018a5aa",
+										"exec": [
+											"pm.test('Find pet by Id Request Post-response test: Response is JSON', function () {",
+											"    pm.response.to.be.json;",
+											"});",
+											"",
+											"const pet = pm.response.json();",
+											"pm.test('Find pet by Id Request Post-response test: Response contains correct pet id', function () {",
+											"    const expectedIdRaw = pm.environment.get('env_petId');",
+											"    const expectedIdNum = Number(expectedIdRaw);",
+											"    const expected = Number.isNaN(expectedIdNum) ? expectedIdRaw : expectedIdNum;",
+											"    pm.expect(pet.id).to.eql(expected);",
+											"});",
+											"",
+											"pm.test('Find pet by Id Response contains all required fields: id, category, name, and status', function () {",
+											"    pm.expect(pet).to.have.property('id');",
+											"    pm.expect(pet).to.have.property('category');",
+											"    pm.expect(pet).to.have.property('name');",
+											"    pm.expect(pet).to.have.property('status');",
+											"});",
+											"// change +3",
+											"// main",
+											"// conflict 1",
+											"// New changes"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"id": "3e8c08b2-cfb8-4017-b06b-8b4b12bfdbe0",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "{{gl_base_url}}/pet/{{env_petId}}"
+							},
+							"response": []
+						}
+					],
+					"id": "4daab25d-b8b3-48a1-82fc-32d6303048fb"
+				},
+				{
+					"name": "GET pet/findByStatus",
+					"item": [
+						{
+							"name": "Find Pets by status - available",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "60c755d4-c85a-4249-9eb3-a99bf4d43d7a",
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "37f056f5-7ee4-4593-aed7-17adc1c02a30",
+										"exec": [
+											"pm.test('Find pet by Status Request Post-response test: Response is JSON', function () {",
+											"    pm.response.to.be.json;",
+											"});",
+											"",
+											"console.log('Response body:', pm.response.json());",
+											"",
+											"const pets = pm.response.json();",
+											"",
+											"pm.test('Find pet by Status Request Post-response test: Response is an array', function () {",
+											"    pm.expect(pets).to.be.an('array');",
+											"});",
+											"",
+											"pm.test('Find pet by Status Request Post-response test: All pets have correct status', function () {",
+											"    const expectedStatus = pm.collectionVariables.get('col_pet_status1');",
+											"    pets.forEach(pet => {",
+											"        pm.expect(pet.status).to.eql(expectedStatus);",
+											"    });",
+											"});",
+											"",
+											"pm.test('Find pet by Status Request Post-response test: All pets have id property', function () {",
+											"    pets.forEach(pet => {",
+											"        pm.expect(pet).to.have.property('id');",
+											"    });",
+											"});",
+											"",
+											"pm.test('Each pet contains all required fields: id, category, name, and status', function () {",
+											"    pets.forEach(pet => {",
+											"        pm.expect(pet).to.have.property('id');",
+											"        pm.expect(pet).to.have.property('status');",
+											"    });",
+											"});",
+											"",
+											"// Visualization: Table showing pet data",
+											"var template = `",
+											"<style>",
+											"    table {",
+											"        width: 100%;",
+											"        border-collapse: collapse;",
+											"        font-family: Arial, sans-serif;",
+											"    }",
+											"    th {",
+											"        background-color: #4CAF50;",
+											"        color: white;",
+											"        padding: 12px;",
+											"        text-align: left;",
+											"        border: 1px solid #ddd;",
+											"    }",
+											"    td {",
+											"        padding: 10px;",
+											"        border: 1px solid #ddd;",
+											"    }",
+											"    tr:nth-child(even) {",
+											"        background-color: #f2f2f2;",
+											"    }",
+											"    tr:hover {",
+											"        background-color: #ddd;",
+											"    }",
+											"</style>",
+											"<table>",
+											"    <thead>",
+											"        <tr>",
+											"            <th>ID</th>",
+											"            <th>Name</th>",
+											"            <th>Category</th>",
+											"            <th>Status</th>",
+											"            <th>Tags</th>",
+											"        </tr>",
+											"    </thead>",
+											"    <tbody>",
+											"        {{#each pets}}",
+											"        <tr>",
+											"            <td>{{id}}</td>",
+											"            <td>{{name}}</td>",
+											"            <td>{{categoryName}}</td>",
+											"            <td>{{status}}</td>",
+											"            <td>{{tagsDisplay}}</td>",
+											"        </tr>",
+											"        {{/each}}",
+											"    </tbody>",
+											"</table>",
+											"`;",
+											"",
+											"function constructVisualizerPayload() {",
+											"    const responseData = pm.response.json();",
+											"    const pets = responseData.map(pet => ({",
+											"        id: pet.id || 'N/A',",
+											"        name: pet.name || 'N/A',",
+											"        categoryName: pet.category && pet.category.name ? pet.category.name : 'N/A',",
+											"        status: pet.status || 'N/A',",
+											"        tagsDisplay: pet.tags && pet.tags.length > 0 ? pet.tags.map(tag => tag.name).join(', ') : 'N/A'",
+											"    }));",
+											"    ",
+											"    return { pets: pets };",
+											"}",
+											"",
+											"pm.visualizer.set(template, constructVisualizerPayload());"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"id": "34ce26c1-1f44-41c4-aa75-a53433ef8f04",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{gl_base_url}}/pet/findByStatus?status={{col_pet_status1}}",
+									"host": [
+										"{{gl_base_url}}"
+									],
+									"path": [
+										"pet",
+										"findByStatus"
+									],
+									"query": [
+										{
+											"key": "status",
+											"value": "{{col_pet_status1}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Find Pets by status - pending",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "a29b841e-280e-4b6d-b1c9-ed4b3bbfd8ca",
+										"exec": [
+											"console.log('collection 2: ' + pm.collectionVariables.get('col_pet_status2'))"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"id": "4130a59a-3a2d-4230-96aa-ac840f8106d4",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{gl_base_url}}/pet/findByStatus?status={{col_pet_status2}}",
+									"host": [
+										"{{gl_base_url}}"
+									],
+									"path": [
+										"pet",
+										"findByStatus"
+									],
+									"query": [
+										{
+											"key": "status",
+											"value": "{{col_pet_status2}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Find Pets by status - sold",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "1d69b2fd-3026-42cd-884f-037bdc1082da",
+										"exec": [
+											"console.log('collection 3: ' + pm.collectionVariables.get('col_pet_status3'))"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"id": "177e43c3-62a1-4fb2-9702-008597825d5a",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{gl_base_url}}/pet/findByStatus?status={{col_pet_status3}}",
+									"host": [
+										"{{gl_base_url}}"
+									],
+									"path": [
+										"pet",
+										"findByStatus"
+									],
+									"query": [
+										{
+											"key": "status",
+											"value": "{{col_pet_status3}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Find Pets by all statuses",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "04d9d9d6-e012-4b1c-becc-0139693413b4",
+										"exec": [
+											"var template = `",
+											"<canvas id=\"myChart\" height=\"75\"></canvas>",
+											"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js\"></script> ",
+											"<script>",
+											"    var ctx = document.getElementById(\"myChart\");",
+											"    var myChart = new Chart(ctx, {",
+											"        type: \"bar\",",
+											"        data: {",
+											"            labels: [],",
+											"            datasets: [{",
+											"                label: 'Number of Pets',",
+											"                data: [],",
+											"                backgroundColor: [",
+											"                    'rgba(75, 192, 192, 0.6)',",
+											"                    'rgba(255, 206, 86, 0.6)',",
+											"                    'rgba(255, 99, 132, 0.6)'",
+											"                ],",
+											"                borderColor: [",
+											"                    'rgba(75, 192, 192, 1)',",
+											"                    'rgba(255, 206, 86, 1)',",
+											"                    'rgba(255, 99, 132, 1)'",
+											"                ],",
+											"                borderWidth: 1",
+											"            }]",
+											"        },",
+											"        options: {",
+											"            legend: { display: false },",
+											"            title: {",
+											"                display: true,",
+											"                text: 'Pet Count by Status',",
+											"                fontSize: 16",
+											"            },",
+											"            scales: {",
+											"                xAxes: [{",
+											"                    display: true,",
+											"                    scaleLabel: {",
+											"                        display: true,",
+											"                        labelString: 'Status'",
+											"                    }",
+											"                }],",
+											"                yAxes: [{",
+											"                    display: true,",
+											"                    ticks: {",
+											"                        beginAtZero: true,",
+											"                        stepSize: 1",
+											"                    },",
+											"                    scaleLabel: {",
+											"                        display: true,",
+											"                        labelString: 'Count'",
+											"                    }",
+											"                }]",
+											"            }",
+											"        }",
+											"    });",
+											"",
+											"    pm.getData(function (err, value) {",
+											"        myChart.data.labels = value.statusLabels;",
+											"        myChart.data.datasets[0].data = value.statusCounts;",
+											"        myChart.update();",
+											"    });",
+											"",
+											"</script>`;",
+											"",
+											"function constructVisualizerPayload() {",
+											"    var responseData = pm.response.json();",
+											"    var statusCount = {};",
+											"    ",
+											"    // Count pets by status",
+											"    responseData.forEach(function(pet) {",
+											"        var status = pet.status || 'unknown';",
+											"        if (statusCount[status]) {",
+											"            statusCount[status]++;",
+											"        } else {",
+											"            statusCount[status] = 1;",
+											"        }",
+											"    });",
+											"    ",
+											"    // Convert to arrays for Chart.js",
+											"    var statusLabels = Object.keys(statusCount);",
+											"    var statusCounts = statusLabels.map(function(status) {",
+											"        return statusCount[status];",
+											"    });",
+											"    ",
+											"    return {",
+											"        statusLabels: statusLabels,",
+											"        statusCounts: statusCounts",
+											"    };",
+											"}",
+											"",
+											"pm.visualizer.set(template, constructVisualizerPayload());"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"id": "9af2254b-754e-4eb5-93ae-f211923e1835",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{gl_base_url}}/pet/findByStatus?status={{col_pet_statuses}}",
+									"host": [
+										"{{gl_base_url}}"
+									],
+									"path": [
+										"pet",
+										"findByStatus"
+									],
+									"query": [
+										{
+											"key": "status",
+											"value": "{{col_pet_statuses}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "dca36e74-dcf4-4cd3-bbdf-8248a348c705",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "53b1c29e-e966-423b-82e5-4ea0064b2a90",
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {},
+								"exec": [
+									"const status_1 = 'available';\r",
+									"const status_2 = 'pending';\r",
+									"const status_3 = 'sold';\r",
+									"// let status_all = ['available', 'pending', 'sold'];\r",
+									"const status_all = [status_1, status_2, status_3];\r",
+									"\r",
+									"pm.collectionVariables.set(\"col_pet_status1\", status_1);\r",
+									"pm.collectionVariables.set(\"col_pet_status2\", status_2);\r",
+									"pm.collectionVariables.set(\"col_pet_status3\", status_3);\r",
+									"pm.collectionVariables.set(\"col_pet_statuses\", status_all);"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "569c9b9f-70db-45ce-9a43-be6e7db12189",
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {},
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "POST /pet/{petId}",
+					"item": [
+						{
+							"name": "Updates a pet in the store with form data",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "f171802a-9972-4e67-ae54-55738cd21677",
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "b835e468-1dcf-40a1-b7c6-08223c416fee",
+										"exec": [
+											"pm.test(\"Update pet Request Post-response test: Response is valid JSON\", function () {",
+											"    pm.response.to.be.json;",
+											"});",
+											"",
+											"pm.test(\"Update pet Request Post-response test: Response has expected structure (code, type, message)\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('code');",
+											"    pm.expect(jsonData).to.have.property('type');",
+											"    pm.expect(jsonData).to.have.property('message');",
+											"});",
+											"",
+											"pm.test(\"Update pet Request Post-response test: Response code is 200\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.code).to.eql(200);",
+											"});",
+											"",
+											"pm.test(\"Update pet Request Post-response test: Response type is a string\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.type).to.be.a('string');",
+											"});",
+											"",
+											"pm.test(\"Update pet Request Post-response test: Response message exists and is not empty\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.message).to.exist;",
+											"    pm.expect(jsonData.message).to.not.be.empty;",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"id": "665ec312-97fd-47b3-8235-31d72affa4db",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true,
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "name",
+											"value": "{{first_name}}",
+											"type": "text",
+											"uuid": "c88da930-4687-458a-8281-8aa6cf41252d"
+										},
+										{
+											"key": "status",
+											"value": "{{col_pet_status3}}",
+											"type": "text",
+											"uuid": "14dec6cb-dbed-425b-9690-b1d2cb357b52"
+										}
+									]
+								},
+								"url": "{{gl_base_url}}/pet/{{env_petId}}"
+							},
+							"response": []
+						}
+					],
+					"id": "edb61806-93ee-4f3b-9377-f258c720aef1"
+				},
+				{
+					"name": "DELETE /pet/{petId}",
+					"item": [
+						{
+							"name": "Delete a pet",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "390e12e1-2e09-4ac3-86a8-0ac5b015a205",
+										"exec": [
+											"pm.test('Delete Request Post-response test: Response is JSON', function () {",
+											"    pm.response.to.be.json;",
+											"});",
+											"",
+											"pm.test('Delete Request Post-response test: Response body contains success indicators', function () {",
+											"    const jsonData = pm.response.json();",
+											"    pm.expect(jsonData.code).to.eql(200);",
+											"    pm.expect(jsonData.type).to.exist;",
+											"});",
+											"",
+											"pm.test('Delete Request Post-response test: Message field exists in response', function () {",
+											"    const jsonData = pm.response.json();",
+											"    pm.expect(jsonData.message).to.exist;",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"id": "b9e1bc58-10dc-4746-9b57-7ed0a05e62e8",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": "{{gl_base_url}}/pet/{{env_petId}}"
+							},
+							"response": []
+						}
+					],
+					"id": "4ae79156-aedf-4b0c-9d0e-8bdb16f01309"
+				}
+			],
+			"id": "28892409-4773-4edf-8af5-d6213ae10b5f",
+			"description": "**Home Task 2:**\n\n1.Create variables on all levels\n\n2.Use them in the following way:  \nGlobal - URL  \nEnv - Pet ids  \nCollection - Finding pets by status  \nVault - For the metadata field for POST /pet/{petId}/uploadImage request\n\n3.Add dynamic variables to the request bodies and to the pre-requests to store randomized data\n\n4.Learn to use get() and set() functions\n\n5.Understand how pm.variables.get() works, the hierarchy and how Postman gets variables according to what scope is used  \n\n**Home Task 3**:\n\n1\\. Add sending API call in pre-request script of your choice\n\n2.Add sending API call in post-response script of your choice\n\n3\\. Add sending GET /pet/findByStatus using JS in post-response of API call of your choice\n\n4.Add tests in all pet controller requests (Pet Store_Task2 collection)\n\n5.Add a test in JS function that you use to send API call \n\n6\\. Learn the sequence of pre-request and post-response scripts in hierarchy of Collection – Folder – Request. Main idea here is to know when pre-request and post-response scripts are sent if you use them on different structure levels",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "cb13e64e-ea1c-4f90-9eda-aeffb0d17f83",
+						"type": "text/javascript",
+						"requests": {},
+						"exec": [
+							"// Pet Controller Folder-level pre-request script",
+							"console.log(\"  === PET CONTROLLER FOLDER PRE-REQUEST SCRIPT EXECUTING ===\");",
+							"console.log(\"  Folder: Pet Controller\");",
+							"console.log(\"  Request Name: \" + pm.info.requestName);",
+							"console.log(\"  Timestamp: \" + new Date().toISOString());"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "bfdc1a86-6707-4d56-b758-94a7b5c1f0cc",
+						"type": "text/javascript",
+						"requests": {},
+						"exec": [
+							"//console.log('collection variable: ' + pm.collectionVariables.get('col_pet_statuses'))",
+							"console.log('global variable: '+ pm.globals.get('gl_base_url'));",
+							"console.log('envirnment variable: ' + pm.environment.get('env_petId'));",
+							"//console.log('variable: ' + pm.variables.get('variable'));",
+							"// if pm.variables.get doesn't have a defined scope, it searches in the following order:",
+							"// at envirnment level -> at collection level -> at global level",
+							"//console.log('Vault variable: ' + await pm.vault.get('id'))",
+							"",
+							"",
+							"// Pet Controller Folder-level post-response script",
+							"console.log(\"  === PET CONTROLLER FOLDER POST-RESPONSE SCRIPT EXECUTING ===\");",
+							"console.log(\"  Folder: Pet Controller\");",
+							"console.log(\"  Request Name: \" + pm.info.requestName);",
+							"console.log(\"  Response Status: \" + pm.response.code);",
+							"console.log(\"  Timestamp: \" + new Date().toISOString());",
+							"",
+							"pm.test(\"Pet Controller Post-response test: environment to be production\", function () {",
+							"    pm.expect(pm.globals.get(\"gl_base_url\")).to.eql(\"https://petstore.swagger.io/v2\")",
+							"});",
+							"pm.test('Pet Controller Post-response test - after each Request: Status code is 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						]
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "31f8fd6d-37c7-4200-ae5f-8e9d0787c803",
+				"type": "text/javascript",
+				"requests": {},
+				"exec": [
+					"// Collection-level pre-request script",
+					"console.log(\"=== COLLECTION PRE-REQUEST SCRIPT EXECUTING ===\");",
+					"console.log(\"Collection: Pet Store\");",
+					"console.log(\"Request Name: \" + pm.info.requestName);",
+					"console.log(\"Timestamp: \" + new Date().toISOString());"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "40a43de9-ec21-497d-b660-8e62b19bcd31",
+				"type": "text/javascript",
+				"requests": {},
+				"exec": [
+					"// Collection-level post-response script",
+					"console.log(\"=== COLLECTION POST-RESPONSE SCRIPT EXECUTING ===\");",
+					"console.log(\"Collection: Pet Store\");",
+					"console.log(\"Request Name: \" + pm.info.requestName);",
+					"console.log(\"Response Status: \" + pm.response.code);",
+					"console.log(\"Timestamp: \" + new Date().toISOString());",
+					"",
+					"// Basic test that applies to all requests in the collection",
+					"pm.test(\"Collection Post-response test: Response time is less than 5000ms\", function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(5000);",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "col_pet_status1",
+			"value": "available"
+		},
+		{
+			"key": "col_pet_status2",
+			"value": "pending"
+		},
+		{
+			"key": "col_pet_status3",
+			"value": "sold"
+		},
+		{
+			"key": "col_pet_statuses",
+			"value": [
+				"available",
+				"pending",
+				"sold"
+			]
+		},
+		{
+			"key": "first_name",
+			"value": "Hulda"
+		},
+		{
+			"key": "available_pets_count",
+			"value": 668
+		},
+		{
+			"key": "Pets_count_before_available",
+			"value": 752
+		},
+		{
+			"key": "Pets_count_after_available",
+			"value": 753
+		},
+		{
+			"key": "postman-api-key",
+			"value": ""
+		}
+	]
+}
